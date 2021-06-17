@@ -357,6 +357,32 @@ class Character extends FlxSprite
 				updateHitbox();
 
 				antialiasing = false;
+
+			case 'sarvente':
+				frames = Paths.getSparrowAtlas("characters/sarvente_sheet",'shared');
+				animation.addByPrefix("idle","SarventeIdle", 24, false);
+				animation.addByPrefix("singUP","SarventeUp", 24, false);
+				animation.addByPrefix("singLEFT","SarventeLeft", 24, false);
+				animation.addByPrefix("singRIGHT","SarventeRight", 24, false);
+				animation.addByPrefix("singDOWN","SarventeDown", 24, false);
+
+				loadOffsets();
+				playAnim("idle");
+			case 'sarvente-dark':
+				frames = Paths.getSparrowAtlas("characters/sarvente_dark",'shared');
+				animation.addByPrefix("idle","SarvDarkIdle0", 24, false);
+				animation.addByPrefix("singUP","SarvDarkUp0", 24, false);
+				animation.addByPrefix("singLEFT","SarvDarkLeft0", 24, false);
+				animation.addByPrefix("singRIGHT","SarvDarkRight0", 24, false);
+				animation.addByPrefix("singDOWN","SarvDarkDown0", 24, false);
+
+				animation.addByPrefix("singUP-alt","SarvDarkUp2", 24, false);
+				animation.addByPrefix("singLEFT-alt","SarvDarkLeft2", 24, false);
+				animation.addByPrefix("singRIGHT-alt","SarvDarkRight2", 24, false);
+				animation.addByPrefix("singDOWN-alt","SarvDarkDown2", 24, false);
+
+				loadOffsets();
+				playAnim("idle");
 			case 'senpai-angry':
 				frames = Paths.getSparrowAtlas('characters/senpai','shared');
 				animation.addByPrefix('idle', 'Angry Senpai Idle', 24, false);
@@ -406,41 +432,8 @@ class Character extends FlxSprite
 				loadOffsets();
 
 				playAnim('idle');
-			case 'kapi':
-				frames = Paths.getSparrowAtlas('characters/kapi');
-				animation.addByPrefix('idle', 'Dad idle dance', 24, false);
-				animation.addByPrefix('singUP', 'Dad Sing Note UP', 24, false);
-				animation.addByPrefix('singRIGHT', 'Dad Sing Note RIGHT', 24, false);
-				animation.addByPrefix('singDOWN', 'Dad Sing Note DOWN', 24, false);
-				animation.addByPrefix('singLEFT', 'Dad Sing Note LEFT', 24, false);
-
-				animation.addByIndices('singUPHold', 'Dad Sing Note UP',[8,9,10],"", 24);
-				animation.addByIndices('singRIGHTHold', 'Dad Sing Note RIGHT',[8,9,10],"", 24);
-				animation.addByIndices('singDOWNHold', 'Dad Sing Note DOWN',[8,9,10],"", 24);
-				animation.addByIndices('singLEFTHold', 'Dad Sing Note LEFT',[8,9,10],"", 24);
-
-				animation.addByPrefix('meow', 'Dad meow', 24, false);
-				animation.addByPrefix('stare', 'Dad stare', 24, false);
-
-				loadOffsets();
-
-				playAnim("idle");
 		default:
 			var xmlData:String = '';
-			/*if(Cache.xmlData[curCharacter]!=null){
-				xmlData=Cache.xmlData[curCharacter];
-			}else{
-				xmlData=File.getContent("assets/shared/images/characters/"+curCharacter+".xml");
-				Cache.xmlData[curCharacter]=xmlData;
-			}
-			var bitmapData:BitmapData;
-			if(FlxG.bitmap.get(curCharacter + "CharFrames")!=null){
-				bitmapData = FlxG.bitmap.get(curCharacter + "CharFrames").bitmap;
-			}else{
-				bitmapData = BitmapData.fromFile("assets/shared/images/characters/"+curCharacter+".png");
-				FlxG.bitmap.add(bitmapData,true,curCharacter+"CharFrames");
-			}*/
-
 			if(Cache.charFrames[curCharacter]!=null){
 				frames=Cache.charFrames[curCharacter];
 			}else{

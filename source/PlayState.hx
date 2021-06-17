@@ -708,6 +708,36 @@ class PlayState extends MusicBeatState
 		                            add(waveSpriteFG);
 		                    */
 		          }
+							case 'parish' | 'worship':
+								defaultCamZoom = .7;
+								curStage='church';
+								var floor:FlxSprite = new FlxSprite(-400, -725).loadGraphic(Paths.image('sacredmass/church1/floor'));
+								floor.antialiasing = true;
+								floor.scrollFactor.set(1, 1);
+								floor.active = false;
+								floor.setGraphicSize(Std.int(floor.width*1.25));
+								add(floor);
+
+								var bg:FlxSprite = new FlxSprite(-400, -750).loadGraphic(Paths.image('sacredmass/church1/bg'));
+								bg.antialiasing = true;
+								bg.scrollFactor.set(.9, .9);
+								bg.active = false;
+								bg.setGraphicSize(Std.int(bg.width*1.3));
+								add(bg);
+
+								var fg:FlxSprite = new FlxSprite(-275, -800).loadGraphic(Paths.image('sacredmass/church1/pillars'));
+								fg.antialiasing = true;
+								fg.scrollFactor.set(1,1);
+								fg.active = false;
+								fg.setGraphicSize(Std.int(fg.width*1.25));
+								add(fg);
+
+								if(SONG.song.toLowerCase()=='worship'){
+									fg.color = 0xBC93A8;
+									bg.color = 0xBC93A8;
+									floor.color = 0xBC93A8;
+								}
+
 		          default:
 		          {
 											if(SONG.noBG!=true){
@@ -824,6 +854,12 @@ class PlayState extends MusicBeatState
 			case 'mallEvil':
 				boyfriend.x += 320;
 				dad.y -= 80;
+			case 'church':
+				gf.y -= 105;
+				gf.x -= 165;
+				dad.x -= 75;
+				boyfriend.x += 75;
+				gf.scrollFactor.set(1,1);
 			case 'school':
 				boyfriend.x += 200;
 				boyfriend.y += 220;
@@ -2035,6 +2071,9 @@ class PlayState extends MusicBeatState
 					case 'senpai-angry':
 						camFollow.y = dad.getMidpoint().y - 430;
 						camFollow.x = dad.getMidpoint().x - 100;
+					case 'sarvente-dark':
+						camFollow.y = dad.getMidpoint().y - 100;
+						camFollow.x = dad.getMidpoint().x;
 				}
 
 				if (dad.curCharacter == 'mom')
