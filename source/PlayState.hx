@@ -2905,7 +2905,6 @@ class PlayState extends MusicBeatState
 
 		if((left || right || up || down) && generatedMusic ){
 			var hitting=[];
-			//renderedNotes.forEachAlive( function(daNote:Note){
 			for(daNote in hittableNotes){
 				if(daNote.isSustainNote && daNote.canBeHit && daNote.mustPress && holdArray[daNote.noteData]){
 					noteHit(daNote);
@@ -2920,16 +2919,21 @@ class PlayState extends MusicBeatState
 				var possibleNotes:Array<Note> = [];
 				var ignoreList = [];
 				var what = [];
+				var checkDirAgain=[false,false,false,false];
 				//notes.forEachAlive( function(daNote:Note){
 				for(daNote in hittableNotes){
 					if(daNote.canBeHit && daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit && !daNote.isSustainNote){
 						if(ignoreList.contains(daNote.noteData)){
-							for(note in possibleNotes){
-								if(note.noteData==daNote.noteData && Math.abs(daNote.strumTime-note.strumTime)<10){
-									what.push(daNote);
-								}else if(note.noteData==daNote.noteData && daNote.strumTime<note.strumTime){
-									possibleNotes.remove(note);
-									possibleNotes.push(daNote);
+							if(!checkDirAgain[daNote.noteData]){
+								checkDirAgain[daNote.noteData]=true; // idk hopin 2 make fogu not lag every time she hits a key lmao
+								for(note in possibleNotes){
+									if(note.noteData==daNote.noteData && Math.abs(daNote.strumTime-note.strumTime)<10){
+										what.push(daNote);
+									}else if(note.noteData==daNote.noteData && daNote.strumTime<note.strumTime){
+										possibleNotes.remove(note);
+										possibleNotes.push(daNote);
+										break;
+									}
 								}
 							}
 						}else{
