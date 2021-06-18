@@ -58,8 +58,9 @@ import llua.Lua;
 import llua.State;
 import llua.LuaL;
 #end
-
 using StringTools;
+
+
 
 class PlayState extends MusicBeatState
 {
@@ -84,7 +85,7 @@ class PlayState extends MusicBeatState
 	private var renderedNotes:FlxTypedGroup<Note>;
 	private var hittableNotes:Array<Note> = [];
 	private var unspawnNotes:Array<Note> = [];
-
+	private var afterimages:CrossFades;
 	private var strumLine:FlxSprite;
 	private var curSection:Int = 0;
 
@@ -94,12 +95,14 @@ class PlayState extends MusicBeatState
 	private static var prevCamFollow:FlxObject;
 	private var lastHitDadNote:Note;
 	private var strumLineNotes:FlxTypedGroup<FlxSprite>;
+	private var afterImageSprites:FlxTypedGroup<FlxSprite>;
 	private var playerStrums:FlxTypedGroup<FlxSprite>;
 	private var dadStrums:FlxTypedGroup<FlxSprite>;
 	private var playerStrumLines:FlxTypedGroup<FlxSprite>;
 	public var refNotes:FlxTypedGroup<FlxSprite>;
 	public var opponentRefNotes:FlxTypedGroup<FlxSprite>;
 	private var opponentStrumLines:FlxTypedGroup<FlxSprite>;
+
 	public var luaSprites:Map<String, Dynamic>;
 	public var luaObjects:Map<String, Dynamic>;
 	public var unnamedLuaSprites:Int=0;
@@ -224,6 +227,8 @@ class PlayState extends MusicBeatState
 	var detailsPausedText:String = "";
 	#end
 
+
+
 	override public function create()
 	{
 		Cache.Clear();
@@ -274,6 +279,22 @@ class PlayState extends MusicBeatState
 
 		if (SONG == null)
 			SONG = Song.loadFromJson('tutorial');
+
+		try {
+			var difficulty:String = "";
+
+			if (storyDifficulty == 0)
+				difficulty = '-easy';
+
+			if (storyDifficulty == 2)
+				difficulty = '-hard';
+			trace("GRABBIN AFTER IMAGES");
+			if(afterimages==null){
+				afterimages = AfterImages.loadFromJson(SONG.song.toLowerCase() + difficulty,SONG.song.toLowerCase());
+			}
+		}catch(e){
+			trace("no afterimages " + e);
+		}
 
 		Conductor.mapBPMChanges(SONG);
 		Conductor.changeBPM(SONG.bpm);
@@ -791,6 +812,8 @@ class PlayState extends MusicBeatState
 		if(SONG.player1=='bf-neb')
 			gfVersion = 'lizzy';
 
+		afterImageSprites = new FlxTypedGroup<FlxSprite>();
+		add(afterImageSprites);
 		gf = new Character(400, 130, gfVersion);
 		gf.scrollFactor.set(0.95, 0.95);
 
@@ -1545,7 +1568,7 @@ class PlayState extends MusicBeatState
 					oldNote = null;
 
 				var swagNote:Note = new Note(daStrumTime, daNoteData, oldNote, false);
-
+				swagNote.section = daBeats;
 				swagNote.sustainLength = songNotes[2];
 				swagNote.scrollFactor.set(0, 0);
 
@@ -1561,6 +1584,7 @@ class PlayState extends MusicBeatState
 
 					var sustainNote:Note = new Note(daStrumTime + (Conductor.stepCrochet * susNote) + Conductor.stepCrochet, daNoteData, oldNote, true);
 					sustainNote.scrollFactor.set();
+					sustainNote.section = swagNote.section;
 					unspawnNotes.push(sustainNote);
 
 					sustainNote.mustPress = gottaHitNote;
@@ -2377,6 +2401,44 @@ class PlayState extends MusicBeatState
 							anim='singRIGHT' + altAnim;
 						}
 
+						if(afterimages!=null){
+							if(afterimages.notes[daNote.section]!=null){
+								if(afterimages.notes[daNote.section].crossFade){
+									// TODO: put afterimages in their own class!!!!!
+									var afterImage = new FlxSprite();
+									afterImage.frames = dad.frames;
+									var curAnim = dad.animation.curAnim;
+									afterImage.alpha = .75;
+									afterImage.setGraphicSize(Std.int(dad.width),Std.int(dad.height));
+									afterImage.scrollFactor.set(dad.scrollFactor.x,dad.scrollFactor.y);
+									afterImage.updateHitbox();
+									afterImage.animation.add("current",curAnim.frames,0,false,dad.flipX,dad.flipY);
+									afterImage.animation.play('current',true);
+									afterImage.animation.curAnim.curFrame=curAnim.curFrame;
+									afterImage.x = dad.x+75;
+									afterImage.y = dad.y;
+									afterImage.color = 0xF54589;
+									afterImageSprites.add(afterImage);
+									afterImage.velocity.x = -175;
+									afterImage.acceleration.x =  15;
+									afterImage.velocity.y = FlxG.random.float(-25,25);
+
+									var increment = FlxG.random.float(.075,.1);
+									new FlxTimer().start(.025, function(tmr:FlxTimer)
+									{
+										afterImage.alpha -= increment;
+										if(afterImage.alpha>0){
+											tmr.reset(.025);
+										}else{
+											afterImage.kill();
+											afterImageSprites.remove(afterImage);
+											afterImage.destroy();
+										}
+									});
+								}
+							}
+						}
+
 
 						var canHold = daNote.isSustainNote && dad.animation.getByName(anim+"Hold")!=null;
 						if(canHold && !dad.animation.curAnim.name.startsWith(anim)){
@@ -2393,6 +2455,9 @@ class PlayState extends MusicBeatState
 						}
 
 					//}
+
+
+
 					dad.holdTimer = 0;
 
 

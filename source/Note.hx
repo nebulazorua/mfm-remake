@@ -30,6 +30,7 @@ class Note extends FlxSprite
 	public var holdParent:Bool=false;
 	public var noteType:Int = 0;
 	public var beingCharted:Bool=false;
+	public var section:Int=0;
 
 	public var noteScore:Float = 1;
 
