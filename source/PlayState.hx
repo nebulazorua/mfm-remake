@@ -58,6 +58,7 @@ import llua.Lua;
 import llua.State;
 import llua.LuaL;
 #end
+import AfterImages;
 using StringTools;
 
 

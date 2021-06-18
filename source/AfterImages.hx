@@ -1,7 +1,11 @@
 // I KNOW MFM CALLS THESE CROSSFADES
 // I DONT CARE!!!!!!!!!!
-
 package;
+import haxe.Json;
+import haxe.format.JsonParser;
+import lime.utils.Assets;
+
+using StringTools;
 
 typedef AfterimageSection = {
 	var sectionNotes:Array<Dynamic>;
@@ -30,7 +34,7 @@ class AfterImages {
 
 	}
 
-  public static function loadFromJson(jsonInput:String, ?folder:String):Dynamic
+  public static function loadFromJson(jsonInput:String, ?folder:String):Null<CrossFades>
   {
     var rawJson = Assets.getText(Paths.json(folder.toLowerCase() + '/' + jsonInput.toLowerCase())).trim();
 
