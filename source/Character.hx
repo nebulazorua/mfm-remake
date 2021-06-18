@@ -49,8 +49,10 @@ class Character extends FlxSprite
 				animation.addByIndices('hairBlow', "GF Dancing Beat Hair blowing", [0, 1, 2, 3], "", 24);
 				animation.addByIndices('hairFall', "GF Dancing Beat Hair Landing", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "", 24, false);
 				animation.addByPrefix('scared', 'GF FEAR', 24);
+				animation.addByPrefix("scaredRuv","GF FEAR",24);
 
 				loadOffsets();
+				addOffset("scaredRuv",animOffsets.get("scared")[0],animOffsets.get("scared")[1] );
 				playAnim('danceRight');
 			case 'lizzy':
 				// GIRLFRIEND CODE
@@ -368,6 +370,16 @@ class Character extends FlxSprite
 
 				loadOffsets();
 				playAnim("idle");
+			case 'ruv':
+				frames = Paths.getSparrowAtlas("characters/ruv_sheet",'shared');
+				animation.addByPrefix("idle","RuvIdle", 24, false);
+				animation.addByPrefix("singUP","RuvUp", 24, false);
+				animation.addByPrefix("singLEFT","RuvLeft", 24, false);
+				animation.addByPrefix("singRIGHT","RuvRight", 24, false);
+				animation.addByPrefix("singDOWN","RuvDown", 24, false);
+
+				loadOffsets();
+				playAnim("idle");
 			case 'sarvente-dark':
 				frames = Paths.getSparrowAtlas("characters/sarvente_dark",'shared');
 				animation.addByPrefix("idle","SarvDarkIdle0", 24, false);
@@ -587,7 +599,7 @@ class Character extends FlxSprite
 			if(animation.getByName("idle")!=null)
 				playAnim("idle");
 			else if (animation.getByName("danceRight")!=null && animation.getByName("danceLeft")!=null){
-				if (!animation.curAnim.name.startsWith('hair'))
+				if (!animation.curAnim.name.startsWith('hair') && animation.curAnim.name!='scaredRuv')
 				{
 					danced = !danced;
 

@@ -115,6 +115,7 @@ class AnimationDebug extends FlxState
 
 		if (FlxG.keys.justPressed.ESCAPE)
 		{
+			
 			LoadingState.loadAndSwitchState(new PlayState());
 		}
 

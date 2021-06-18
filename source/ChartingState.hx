@@ -31,6 +31,7 @@ import openfl.events.IOErrorEvent;
 import openfl.media.Sound;
 import openfl.net.FileReference;
 import openfl.utils.ByteArray;
+import AfterImages;
 
 using StringTools;
 
@@ -67,6 +68,7 @@ class ChartingState extends MusicBeatState
 	var gridBG:FlxSprite;
 
 	var _song:SwagSong;
+	var _crossFade:CrossFades;
 
 	var typingShit:FlxInputText;
 	/*
@@ -108,9 +110,10 @@ class ChartingState extends MusicBeatState
 		curRenderedNotes = new FlxTypedGroup<Note>();
 		curRenderedSustains = new FlxTypedGroup<Note>();
 
-		if (PlayState.SONG != null)
+		if (PlayState.SONG != null){
 			_song = PlayState.SONG;
-		else
+			_crossFade = PlayState.afterimages;
+		}else
 		{
 			_song = {
 				noBG: false,
@@ -123,6 +126,10 @@ class ChartingState extends MusicBeatState
 				speed: 1,
 				validScore: false
 			};
+			_crossFade = {
+				song: 'Test',
+				notes:[]
+			}
 		}
 
 		FlxG.mouse.visible = true;
@@ -267,6 +274,7 @@ class ChartingState extends MusicBeatState
 	var check_changeBPM:FlxUICheckBox;
 	var stepperSectionBPM:FlxUINumericStepper;
 	var check_altAnim:FlxUICheckBox;
+	var check_crossFade:FlxUICheckBox;
 
 	function addSectionUI():Void
 	{
@@ -304,6 +312,9 @@ class ChartingState extends MusicBeatState
 		check_mustHitSection = new FlxUICheckBox(10, 30, null, null, "Must hit section", 100);
 		check_mustHitSection.name = 'check_mustHit';
 		check_mustHitSection.checked = true;
+
+		check_crossFade = new FlxUICheckBox(10, 110, null, null, "Afterimages", 100);
+		check_crossFade.name = 'check_crossFade';
 		// _song.needsVoices = check_mustHit.checked;
 
 		check_altAnim = new FlxUICheckBox(10, 400, null, null, "Alt Animation", 100);
@@ -320,6 +331,7 @@ class ChartingState extends MusicBeatState
 		tab_group_section.add(check_changeBPM);
 		tab_group_section.add(copyButton);
 		tab_group_section.add(clearSectionButton);
+		tab_group_section.add(check_crossFade);
 		tab_group_section.add(swapSection);
 
 		UI_box.addGroup(tab_group_section);
@@ -406,6 +418,8 @@ class ChartingState extends MusicBeatState
 				case 'Change BPM':
 					_song.notes[curSection].changeBPM = check.checked;
 					FlxG.log.add('changed bpm shit');
+				case 'Afterimages':
+					_crossFade.notes[curSection].crossFade = check.checked;
 				case "Alt Animation":
 					_song.notes[curSection].altAnim = check.checked;
 			}
@@ -548,6 +562,7 @@ class ChartingState extends MusicBeatState
 			lastSection = curSection;
 
 			PlayState.SONG = _song;
+			PlayState.afterimages = _crossFade;
 			FlxG.sound.music.stop();
 			vocals.stop();
 			FlxG.switchState(new PlayState());
@@ -776,16 +791,19 @@ class ChartingState extends MusicBeatState
 			_song.notes[daSec].sectionNotes.push(copiedNote);
 		}
 
+		_crossFade.notes[curSection].sectionNotes = _song.notes[curSection].sectionNotes;
+
 		updateGrid();
 	}
 
 	function updateSectionUI():Void
 	{
 		var sec = _song.notes[curSection];
-
+		var fadeSec = _crossFade.notes[curSection];
 		stepperLength.value = sec.lengthInSteps;
 		check_mustHitSection.checked = sec.mustHitSection;
 		check_altAnim.checked = sec.altAnim;
+		check_crossFade.checked = fadeSec.crossFade;
 		check_changeBPM.checked = sec.changeBPM;
 		stepperSectionBPM.value = sec.bpm;
 
@@ -938,7 +956,16 @@ class ChartingState extends MusicBeatState
 			altAnim: false
 		};
 
+		var crossSec:AfterimageSection = {
+			sectionNotes: [],
+			crossFade: false,
+			altAnim: false,
+			mustHitSection: false,
+			bpm: _song.bpm
+		}
+
 		_song.notes.push(sec);
+		_crossFade.notes.push(crossSec);
 	}
 
 	function selectNote(note:Note):Void
@@ -972,6 +999,7 @@ class ChartingState extends MusicBeatState
 	function clearSection():Void
 	{
 		_song.notes[curSection].sectionNotes = [];
+		_crossFade.notes[curSection].sectionNotes = _song.notes[curSection].sectionNotes;
 
 		updateGrid();
 	}
@@ -981,7 +1009,10 @@ class ChartingState extends MusicBeatState
 		for (daSection in 0..._song.notes.length)
 		{
 			_song.notes[daSection].sectionNotes = [];
+			_crossFade.notes[daSection].sectionNotes = _song.notes[daSection].sectionNotes;
 		}
+
+
 
 		updateGrid();
 	}
@@ -1000,6 +1031,8 @@ class ChartingState extends MusicBeatState
 		{
 			_song.notes[curSection].sectionNotes.push([noteStrum, (noteData + 4) % 8, noteSus]);
 		}
+
+		_crossFade.notes[curSection].sectionNotes = _song.notes[curSection].sectionNotes;
 
 		trace(noteStrum);
 		trace(curSection);
@@ -1065,6 +1098,7 @@ class ChartingState extends MusicBeatState
 	function loadJson(song:String):Void
 	{
 		PlayState.SONG = Song.loadFromJson(song.toLowerCase(), song.toLowerCase());
+		PlayState.afterimages = AfterImages.loadFromJson(song.toLowerCase(),song.toLowerCase());
 		FlxG.resetState();
 	}
 
@@ -1077,7 +1111,8 @@ class ChartingState extends MusicBeatState
 	function autosaveSong():Void
 	{
 		FlxG.save.data.autosave = Json.stringify({
-			"song": _song
+			"song": _song,
+			"crossFade": _crossFade,
 		});
 		FlxG.save.flush();
 	}
@@ -1085,7 +1120,8 @@ class ChartingState extends MusicBeatState
 	private function saveLevel()
 	{
 		var json = {
-			"song": _song
+			"song": _song,
+			"crossFade": _crossFade,
 		};
 
 		var data:String = Json.stringify(json);

@@ -86,7 +86,7 @@ class PlayState extends MusicBeatState
 	private var renderedNotes:FlxTypedGroup<Note>;
 	private var hittableNotes:Array<Note> = [];
 	private var unspawnNotes:Array<Note> = [];
-	private var afterimages:CrossFades;
+	public static var afterimages:CrossFades;
 	private var strumLine:FlxSprite;
 	private var curSection:Int = 0;
 
@@ -96,7 +96,7 @@ class PlayState extends MusicBeatState
 	private static var prevCamFollow:FlxObject;
 	private var lastHitDadNote:Note;
 	private var strumLineNotes:FlxTypedGroup<FlxSprite>;
-	private var afterImageSprites:FlxTypedGroup<FlxSprite>;
+	private var afterImageSprites:FlxTypedGroup<AfterImage>;
 	private var playerStrums:FlxTypedGroup<FlxSprite>;
 	private var dadStrums:FlxTypedGroup<FlxSprite>;
 	private var playerStrumLines:FlxTypedGroup<FlxSprite>;
@@ -175,7 +175,8 @@ class PlayState extends MusicBeatState
 	var vcrDistortionGame:VCRDistortionEffect;
 	var phillyTrain:FlxSprite;
 	var trainSound:FlxSound;
-
+	var blackFade:FlxSprite;
+	var brokenPillar:FlxSprite;
 	var limo:FlxSprite;
 	var grpLimoDancers:FlxTypedGroup<BackgroundDancer>;
 	var fastCar:FlxSprite;
@@ -289,11 +290,13 @@ class PlayState extends MusicBeatState
 
 			if (storyDifficulty == 2)
 				difficulty = '-hard';
-			trace("GRABBIN AFTER IMAGES");
+
 			if(afterimages==null){
+				trace("GRABBIN AFTER IMAGES");
 				afterimages = AfterImages.loadFromJson(SONG.song.toLowerCase() + difficulty,SONG.song.toLowerCase());
 			}
 		}catch(e){
+			afterimages = null;
 			trace("no afterimages " + e);
 		}
 
@@ -759,6 +762,40 @@ class PlayState extends MusicBeatState
 									bg.color = 0xBC93A8;
 									floor.color = 0xBC93A8;
 								}
+							case 'zavodila':
+								defaultCamZoom = .7;
+								curStage='churchRuv';
+								var floor:FlxSprite = new FlxSprite(-400, -725).loadGraphic(Paths.image('sacredmass/church2/floor'));
+								floor.antialiasing = true;
+								floor.scrollFactor.set(1, 1);
+								floor.active = false;
+								floor.setGraphicSize(Std.int(floor.width*1.25));
+								add(floor);
+
+								var bg:FlxSprite = new FlxSprite(-400, -750).loadGraphic(Paths.image('sacredmass/church2/bg'));
+								bg.antialiasing = true;
+								bg.scrollFactor.set(.9, .9);
+								bg.active = false;
+								bg.setGraphicSize(Std.int(bg.width*1.3));
+								add(bg);
+
+								var fg:FlxSprite = new FlxSprite(-275, -800).loadGraphic(Paths.image('sacredmass/church2/pillars'));
+								fg.antialiasing = true;
+								fg.scrollFactor.set(1,1);
+								fg.active = false;
+								fg.setGraphicSize(Std.int(fg.width*1.25));
+								add(fg);
+
+								brokenPillar = new FlxSprite(-325, -750).loadGraphic(Paths.image('sacredmass/church2/pillarbroke'));
+								brokenPillar.antialiasing = true;
+								brokenPillar.scrollFactor.set(1, 1);
+								brokenPillar.active = false;
+								brokenPillar.setGraphicSize(Std.int(bg.width*1.35));
+
+								blackFade = new FlxSprite(-FlxG.width*FlxG.camera.zoom,-FlxG.height * FlxG.camera.zoom).makeGraphic(Std.int(FlxG.width * 3), Std.int(FlxG.height * 3), FlxColor.BLACK);
+								blackFade.scrollFactor.set();
+								blackFade.active = false;
+								blackFade.alpha=0;
 
 		          default:
 		          {
@@ -813,10 +850,10 @@ class PlayState extends MusicBeatState
 		if(SONG.player1=='bf-neb')
 			gfVersion = 'lizzy';
 
-		afterImageSprites = new FlxTypedGroup<FlxSprite>();
-		add(afterImageSprites);
 		gf = new Character(400, 130, gfVersion);
 		gf.scrollFactor.set(0.95, 0.95);
+
+		afterImageSprites = new FlxTypedGroup<AfterImage>();
 
 		dad = new Character(100, 100, SONG.player2);
 
@@ -878,11 +915,12 @@ class PlayState extends MusicBeatState
 			case 'mallEvil':
 				boyfriend.x += 320;
 				dad.y -= 80;
-			case 'church':
+			case 'church' | 'churchRuv':
 				gf.y -= 105;
 				gf.x -= 165;
 				dad.x -= 75;
 				boyfriend.x += 75;
+				boyfriend.y += 25;
 				gf.scrollFactor.set(1,1);
 			case 'school':
 				boyfriend.x += 200;
@@ -909,9 +947,17 @@ class PlayState extends MusicBeatState
 
 		add(gf);
 
+
 		// Shitty layering but whatev it works LOL
 		if (curStage == 'limo')
 			add(limo);
+
+		if(curStage=='churchRuv'){
+			add(brokenPillar);
+			add(blackFade);
+		}
+
+		add(afterImageSprites);
 
 		add(dad);
 		add(boyfriend);
@@ -1868,6 +1914,15 @@ class PlayState extends MusicBeatState
 		perfectMode = false;
 		#end
 
+		if(dad.curCharacter=='ruv' && !dad.animation.curAnim.name.startsWith("sing") && gf.animation.curAnim.name=='scaredRuv')
+			@:privateAccess
+			gf.playAnim(gf.danced?"danceRight":"danceLeft",true);
+
+		afterImageSprites.update(elapsed);
+		afterImageSprites.forEachDead( function(image:AfterImage){
+			afterImageSprites.remove(image,true);
+		});
+
 		if(vcrDistortionHUD!=null){
 			vcrDistortionHUD.update(elapsed);
 			vcrDistortionGame.update(elapsed);
@@ -2096,7 +2151,7 @@ class PlayState extends MusicBeatState
 					case 'senpai-angry':
 						camFollow.y = dad.getMidpoint().y - 430;
 						camFollow.x = dad.getMidpoint().x - 100;
-					case 'sarvente-dark':
+					case 'sarvente-dark' | 'sarvente' | 'ruv':
 						camFollow.y = dad.getMidpoint().y - 100;
 						camFollow.x = dad.getMidpoint().x;
 				}
@@ -2126,6 +2181,9 @@ class PlayState extends MusicBeatState
 					case 'schoolEvil':
 						camFollow.x = boyfriend.getMidpoint().x - 200;
 						camFollow.y = boyfriend.getMidpoint().y - 200;
+					case 'church' | 'churchRuv':
+						camFollow.x = boyfriend.getMidpoint().x - 100;
+						camFollow.y = boyfriend.getMidpoint().y - 150;
 				}
 
 				if (SONG.song.toLowerCase() == 'tutorial')
@@ -2402,40 +2460,22 @@ class PlayState extends MusicBeatState
 							anim='singRIGHT' + altAnim;
 						}
 
+						if(dad.curCharacter=='ruv'){
+							camGame.shake(.01,.05);
+							camHUD.shake(.01,.05);
+							gf.playAnim("scaredRuv",true);
+						}
+
 						if(afterimages!=null){
 							if(afterimages.notes[daNote.section]!=null){
 								if(afterimages.notes[daNote.section].crossFade){
-									// TODO: put afterimages in their own class!!!!!
-									var afterImage = new FlxSprite();
-									afterImage.frames = dad.frames;
-									var curAnim = dad.animation.curAnim;
-									afterImage.alpha = .75;
-									afterImage.setGraphicSize(Std.int(dad.width),Std.int(dad.height));
-									afterImage.scrollFactor.set(dad.scrollFactor.x,dad.scrollFactor.y);
-									afterImage.updateHitbox();
-									afterImage.animation.add("current",curAnim.frames,0,false,dad.flipX,dad.flipY);
-									afterImage.animation.play('current',true);
-									afterImage.animation.curAnim.curFrame=curAnim.curFrame;
-									afterImage.x = dad.x+75;
-									afterImage.y = dad.y;
-									afterImage.color = 0xF54589;
-									afterImageSprites.add(afterImage);
+									var afterImage = new AfterImage(dad);
+									afterImage.y += FlxG.random.int(-25,25);
+									afterImage.x += 75;
 									afterImage.velocity.x = -175;
-									afterImage.acceleration.x =  15;
+									afterImage.acceleration.x = 125;
 									afterImage.velocity.y = FlxG.random.float(-25,25);
-
-									var increment = FlxG.random.float(.075,.1);
-									new FlxTimer().start(.025, function(tmr:FlxTimer)
-									{
-										afterImage.alpha -= increment;
-										if(afterImage.alpha>0){
-											tmr.reset(.025);
-										}else{
-											afterImage.kill();
-											afterImageSprites.remove(afterImage);
-											afterImage.destroy();
-										}
-									});
+									afterImageSprites.add(afterImage);
 								}
 							}
 						}
@@ -2610,6 +2650,7 @@ class PlayState extends MusicBeatState
 				prevCamFollow = camFollow;
 
 				PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + difficulty, PlayState.storyPlaylist[0]);
+				PlayState.afterimages = AfterImages.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + difficulty, PlayState.storyPlaylist[0]);
 				FlxG.sound.music.stop();
 
 				LoadingState.loadAndSwitchState(new PlayState());
@@ -3062,62 +3103,6 @@ class PlayState extends MusicBeatState
 
 	}
 
-	function hurtNoteHit(note:Note):Void
-	{
-		combo=0;
-		totalNotes++;
-
-		var strumLine = playerStrumLines.members[note.noteData%4];
-
-		if(note.sustainLength==0 && !note.isSustainNote)
-			health -= .5;
-		else
-			health -= .25;
-		FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.3, 0.6));
-
-		previousHealth=health;
-		if(luaModchartExists && lua!=null)
-			lua.setGlobalVar("health",health);
-
-		//if(!note.isSustainNote){
-		switch(boyfriend.curCharacter){
-			case 'bf-christmas' | 'bf' | 'bf2':
-				boyfriend.playAnim('ouch',true);
-			default:
-				var anim = "";
-				switch (note.noteData)
-				{
-				case 0:
-					anim='singLEFTmiss';
-				case 1:
-					anim='singDOWNmiss';
-				case 2:
-					anim='singUPmiss';
-				case 3:
-					anim='singRIGHTmiss';
-				}
-
-
-				var canHold = note.isSustainNote && boyfriend.animation.getByName(anim+"Hold")!=null;
-				if(canHold && !boyfriend.animation.curAnim.name.startsWith(anim)){
-					boyfriend.playAnim(anim,true);
-				}else if(currentOptions.pauseHoldAnims && !canHold){
-					boyfriend.playAnim(anim,true);
-					if(note.holdParent)
-						boyfriend.holding=true;
-					else{
-						boyfriend.holding=false;
-					}
-
-
-				}else if(!currentOptions.pauseHoldAnims && !canHold){
-					boyfriend.playAnim(anim,true);
-				}
-		}
-
-		//}
-		updateAccuracy();
-	}
 
 	function goodNoteHit(note:Note):Void
 	{
@@ -3166,6 +3151,19 @@ class PlayState extends MusicBeatState
 			anim='singRIGHT';
 		}
 
+		if(afterimages!=null){
+			if(afterimages.notes[note.section]!=null){
+				if(afterimages.notes[note.section].crossFade){
+					var afterImage = new AfterImage(boyfriend);
+					afterImage.y += FlxG.random.int(-25,25);
+					afterImage.x -= 35;
+					afterImage.velocity.x = 175;
+					afterImage.acceleration.x =  -125;
+					afterImage.velocity.y = FlxG.random.float(-25,25);
+					afterImageSprites.add(afterImage);
+				}
+			}
+		}
 
 		var canHold = note.isSustainNote && boyfriend.animation.getByName(anim+"Hold")!=null;
 		if(canHold && !boyfriend.animation.curAnim.name.startsWith(anim)){
@@ -3292,6 +3290,26 @@ class PlayState extends MusicBeatState
 			resyncVocals();
 		}
 
+/*
+FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, 2.5, {
+	ease: FlxEase.quadInOut,
+	onComplete: function(twn:FlxTween)
+	{
+		startCountdown();
+	}
+});
+*/
+		if(SONG.song.toLowerCase()=='zavodila' ){
+			if(curStep==112 || curStep==928){
+				FlxTween.tween(blackFade,{alpha:.85},1.5,{
+					ease: FlxEase.linear
+				});
+			}else if(curStep==128 || curStep==944){
+				FlxTween.tween(blackFade,{alpha:0},.1,{
+					ease: FlxEase.linear
+				});
+			}
+		}
 		if (dad.curCharacter == 'spooky' && curStep % 4 == 2)
 		{
 			// dad.dance();
