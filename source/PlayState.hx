@@ -2473,10 +2473,10 @@ class PlayState extends MusicBeatState
 								if(afterimages.notes[daNote.section].crossFade){
 									var afterImage = new AfterImage(dad);
 									afterImage.y += FlxG.random.int(-25,25);
-									afterImage.x += 75;
-									afterImage.velocity.x = -175;
-									afterImage.acceleration.x = 125;
-									afterImage.velocity.y = FlxG.random.float(-25,25);
+									afterImage.x += FlxG.random.float(-15,15)+15;
+
+									afterImage.velocity.x = FlxG.random.float(-25,25)*6;
+									afterImage.acceleration.x = -afterImage.velocity.x/2;
 									afterImageSprites.add(afterImage);
 								}
 							}
@@ -3162,10 +3162,9 @@ class PlayState extends MusicBeatState
 				if(afterimages.notes[note.section].crossFade){
 					var afterImage = new AfterImage(boyfriend);
 					afterImage.y += FlxG.random.int(-25,25);
-					afterImage.x -= 35;
-					afterImage.velocity.x = 175;
-					afterImage.acceleration.x =  -125;
-					afterImage.velocity.y = FlxG.random.float(-25,25);
+					afterImage.x -= 15;
+					afterImage.velocity.x = FlxG.random.float(-25,25)*6;
+					afterImage.acceleration.x = -afterImage.velocity.x/2;
 					afterImageSprites.add(afterImage);
 				}
 			}
