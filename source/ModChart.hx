@@ -13,10 +13,9 @@ class ModChart {
   public var opponentNotesFollowReceptors=true;
   public var hudVisible=true;
   public var opponentHPDrain:Float = 0;
-
+  
   public function new(playState:PlayState){
     this.playState=playState;
-
   }
 
   public function addCamEffect(effect:ShaderEffect){

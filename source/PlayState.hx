@@ -1054,37 +1054,38 @@ class PlayState extends MusicBeatState
 		// healthBar
 		add(healthBar);
 
-		scoreTxt = new FlxText(healthBarBG.x + healthBarBG.width / 2 - 150, healthBarBG.y + 50, 0, "", 20);
+		scoreTxt = new FlxText(healthBarBG.x + healthBarBG.width / 2 - 150, healthBarBG.y + 30, 0, "", 20);
+		scoreTxt.screenCenter(X);
 		scoreTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		scoreTxt.scrollFactor.set();
 		add(scoreTxt);
 
-		presetTxt = new FlxText(0, FlxG.height/2-80, 0, "", 20);
+		presetTxt = new FlxText(10, FlxG.height/2-80, 0, "", 20);
 		presetTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
 		presetTxt.scrollFactor.set();
 		presetTxt.visible=false;
 
-		highComboTxt = new FlxText(0, FlxG.height/2-60, 0, "", 20);
+		highComboTxt = new FlxText(10, FlxG.height/2-60, 0, "", 20);
 		highComboTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
 		highComboTxt.scrollFactor.set();
 
-		sicksTxt = new FlxText(0, FlxG.height/2-40, 0, "", 20);
+		sicksTxt = new FlxText(10, FlxG.height/2-40, 0, "", 20);
 		sicksTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
 		sicksTxt.scrollFactor.set();
 
-		goodsTxt = new FlxText(0, FlxG.height/2-20, 0, "", 20);
+		goodsTxt = new FlxText(10, FlxG.height/2-20, 0, "", 20);
 		goodsTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
 		goodsTxt.scrollFactor.set();
 
-		badsTxt = new FlxText(0, FlxG.height/2, 0, "", 20);
+		badsTxt = new FlxText(10, FlxG.height/2, 0, "", 20);
 		badsTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
 		badsTxt.scrollFactor.set();
 
-		shitsTxt = new FlxText(0, FlxG.height/2+20, 0, "", 20);
+		shitsTxt = new FlxText(10, FlxG.height/2+20, 0, "", 20);
 		shitsTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
 		shitsTxt.scrollFactor.set();
 
-		missesTxt = new FlxText(0, FlxG.height/2+40, 0, "", 20);
+		missesTxt = new FlxText(10, FlxG.height/2+40, 0, "", 20);
 		missesTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
 		missesTxt.scrollFactor.set();
 
@@ -1096,7 +1097,7 @@ class PlayState extends MusicBeatState
 		highComboTxt.text = "Highest Combo: " + highestCombo;
 		if(currentOptions.ratingWindow!=0){
 			presetTxt.text = OptionUtils.ratingWindowNames[currentOptions.ratingWindow] + " Judgement";
-			presetTxt.x = 0;
+			presetTxt.x = 10;
 			presetTxt.y = FlxG.height/2-80;
 			presetTxt.visible=true;
 		}
@@ -1981,6 +1982,7 @@ class PlayState extends MusicBeatState
 		super.update(elapsed);
 
 		scoreTxt.text = "Score:" + songScore + " | Accuracy:" + truncateFloat(accuracy*100, 2) + "% | " + grade;
+		scoreTxt.screenCenter(X);
 		if(luaModchartExists && lua!=null){
 			var luaHealth = lua.getGlobalVar("health","float");
 			if(luaHealth!=previousHealth && luaHealth!=health)
@@ -3304,11 +3306,11 @@ FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, 2.5, {
 });
 */
 		if(SONG.song.toLowerCase()=='zavodila' ){
-			if(curStep==112 || curStep==928){
+			if(curStep==112 || curStep==912){
 				FlxTween.tween(blackFade,{alpha:.85},1.5,{
 					ease: FlxEase.linear
 				});
-			}else if(curStep==128 || curStep==944){
+			}else if(curStep==128 || curStep==928){
 				FlxTween.tween(blackFade,{alpha:0},.1,{
 					ease: FlxEase.linear
 				});

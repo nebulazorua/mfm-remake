@@ -60,6 +60,8 @@ class ChartingState extends MusicBeatState
 
 	var GRID_SIZE:Int = 40;
 
+	var useHitSounds = false;
+
 	var dummyArrow:FlxSprite;
 
 	var curRenderedNotes:FlxTypedGroup<Note>;
@@ -208,6 +210,13 @@ class ChartingState extends MusicBeatState
 			FlxG.sound.music.volume = vol;
 		};
 
+		var check_use_hit = new FlxUICheckBox(125, 200, null, null, "Use hit sounds (in editor)", 100);
+		check_use_hit.checked = false;
+		check_use_hit.callback = function()
+		{
+			useHitSounds=check_use_hit.checked;
+		};
+
 		var saveButton:FlxButton = new FlxButton(110, 8, "Save", function()
 		{
 			saveLevel();
@@ -262,6 +271,7 @@ class ChartingState extends MusicBeatState
 		tab_group_song.add(stepperSpeed);
 		tab_group_song.add(player1DropDown);
 		tab_group_song.add(player2DropDown);
+		tab_group_song.add(check_use_hit);
 
 		UI_box.addGroup(tab_group_song);
 		UI_box.scrollFactor.set();
@@ -317,7 +327,7 @@ class ChartingState extends MusicBeatState
 		check_crossFade.name = 'check_crossFade';
 		// _song.needsVoices = check_mustHit.checked;
 
-		check_altAnim = new FlxUICheckBox(10, 400, null, null, "Alt Animation", 100);
+		check_altAnim = new FlxUICheckBox(100, 110, null, null, "Alt Animation", 100);
 		check_altAnim.name = 'check_altAnim';
 
 		check_changeBPM = new FlxUICheckBox(10, 60, null, null, 'Change BPM', 100);
@@ -544,6 +554,24 @@ class ChartingState extends MusicBeatState
 				}
 			}
 		}
+
+		curRenderedNotes.forEach(function(note:Note){
+			if(FlxG.sound.music.playing){
+				if(note.strumTime<=Conductor.songPosition){
+					if(note.color==0xFFFFFF){
+						if(useHitSounds)
+							FlxG.sound.play(Paths.sound('Normal_Hit'),3);
+
+						note.color = 0xAAAAAA;
+					}
+
+				}else{
+					note.color = 0xFFFFFF;
+				}
+			}else{
+				note.color = 0xFFFFFF;
+			}
+		});
 
 		if (FlxG.mouse.x > gridBG.x
 			&& FlxG.mouse.x < gridBG.x + gridBG.width
@@ -885,6 +913,10 @@ class ChartingState extends MusicBeatState
  			note.rawNoteData = daNoteInfo;
  			note.sustainLength = daSus;
  			note.beingCharted = true;
+			note.canBeHit = _song.notes[curSection].mustHitSection;
+			if(daNoteInfo>3)
+				note.canBeHit=!note.canBeHit;
+
  			note.setGraphicSize(GRID_SIZE, GRID_SIZE);
  			note.updateHitbox();
  			oldNote=note;
