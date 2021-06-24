@@ -18,6 +18,7 @@ class Character extends FlxSprite
 	public var curCharacter:String = 'bf';
 	public var holding:Bool=false;
 	public var disabledDance:Bool = false;
+	public var counter:Int = 0;
 
 	public var holdTimer:Float = 0;
 
@@ -367,6 +368,19 @@ class Character extends FlxSprite
 				animation.addByPrefix("singLEFT","SarventeLeft", 24, false);
 				animation.addByPrefix("singRIGHT","SarventeRight", 24, false);
 				animation.addByPrefix("singDOWN","SarventeDown", 24, false);
+				animation.addByPrefix("peace","SarventeHey", 24, false);
+
+				loadOffsets();
+				playAnim("idle");
+				
+			case 'selever':
+				frames = Paths.getSparrowAtlas("characters/fuckboi_sheet",'shared');
+				animation.addByPrefix("idle","SelIdle", 24, false);
+				animation.addByPrefix("singUP","SelUp", 24, false);
+				animation.addByPrefix("singLEFT","SelLeft", 24, false);
+				animation.addByPrefix("singRIGHT","SelRight", 24, false);
+				animation.addByPrefix("singDOWN","SelDown", 24, false);
+				animation.addByPrefix("peace","SelHey", 24, false);
 
 				loadOffsets();
 				playAnim("idle");
@@ -392,6 +406,16 @@ class Character extends FlxSprite
 				animation.addByPrefix("singLEFT-alt","SarvDarkLeft2", 24, false);
 				animation.addByPrefix("singRIGHT-alt","SarvDarkRight2", 24, false);
 				animation.addByPrefix("singDOWN-alt","SarvDarkDown2", 24, false);
+
+				loadOffsets();
+				playAnim("idle");
+			case 'sarvente-lucifer':
+				frames = Paths.getSparrowAtlas("characters/smokinhotbabe",'shared');
+				animation.addByPrefix("idle","LuciferSarvIdle0", 24, false);
+				animation.addByPrefix("singUP","LuciferSarvUp0", 24, false);
+				animation.addByPrefix("singLEFT","LuciferSarvLeft0", 24, false);
+				animation.addByPrefix("singRIGHT","LuciferSarvRight0", 24, false);
+				animation.addByPrefix("singDOWN","LuciferSarvDown0", 24, false);
 
 				loadOffsets();
 				playAnim("idle");

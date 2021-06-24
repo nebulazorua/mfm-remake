@@ -41,8 +41,8 @@ class OptionsMenu extends MusicBeatState
 		]),
 		new OptionCategory("Preferences",[
 			new ToggleOption("pauseHoldAnims","Holds pause anims"),
-			//new ScrollOption("holdBehaviour",0,1,["Holds pause anims","Holds repeat anims"]),
-			new ToggleOption("showMS","Hit MS"),
+			new ToggleOption("showComboCounter","Show combo counter"),
+			new ToggleOption("showMS","Show Hit MS"),
 			new ToggleOption("ratingInHUD","Ratings in HUD"),
 			new ToggleOption("downScroll","Downscroll"),
 			new ToggleOption("middleScroll","Middlescroll"),

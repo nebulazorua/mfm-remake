@@ -128,18 +128,21 @@ class ChartingState extends MusicBeatState
 				speed: 1,
 				validScore: false
 			};
+		}
+
+		if(_crossFade==null){
 			_crossFade = {
 				song: 'Test',
 				notes:[]
-			}
+			};
 		}
-
 		FlxG.mouse.visible = true;
 		FlxG.save.bind('funkin', 'ninjamuffin99');
 
 		tempBpm = _song.bpm;
 
 		addSection();
+		addCrossfadeSection();
 
 		// sections = _song.notes;
 
@@ -514,6 +517,11 @@ class ChartingState extends MusicBeatState
 				addSection();
 			}
 
+			if(_crossFade.notes[curSection+1]==null)
+			{
+				addCrossfadeSection();
+			}
+
 			changeSection(curSection + 1, false);
 		}
 
@@ -778,6 +786,17 @@ class ChartingState extends MusicBeatState
 	{
 		trace('changing section' + sec);
 
+		if(_song.notes[sec]==null){
+			for(i in curSection...sec){
+				addSection();
+			}
+		}
+		if(_crossFade.notes[sec]==null){
+			for(i in curSection...sec){
+				addCrossfadeSection();
+			}
+		}
+
 		if (_song.notes[sec] != null)
 		{
 			curSection = sec;
@@ -988,6 +1007,11 @@ class ChartingState extends MusicBeatState
 			altAnim: false
 		};
 
+		_song.notes.push(sec);
+		addCrossfadeSection();
+	}
+
+	private function addCrossfadeSection():Void{
 		var crossSec:AfterimageSection = {
 			sectionNotes: [],
 			crossFade: false,
@@ -995,9 +1019,8 @@ class ChartingState extends MusicBeatState
 			mustHitSection: false,
 			bpm: _song.bpm
 		}
-
-		_song.notes.push(sec);
 		_crossFade.notes.push(crossSec);
+
 	}
 
 	function selectNote(note:Note):Void

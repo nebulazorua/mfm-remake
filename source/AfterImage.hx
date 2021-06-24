@@ -27,7 +27,7 @@ class AfterImage extends FlxSprite {
     switch(character.curCharacter){
       case 'bf':
         color = 0x34B4EB;
-      case 'sarvente-dark':
+      case 'sarvente-dark' | 'sarvente-lucifer' | 'selever':
         color = 0xF54589;
       case 'sarvente':
         color = 0xF595BA;

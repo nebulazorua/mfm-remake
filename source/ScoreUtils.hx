@@ -57,14 +57,15 @@ class ScoreUtils
 	}
 
 	public static function RatingToHit(rating:String):Float{ // TODO: toggleable ms-based system
+		// TODO: base it on some other shit
 		var hit:Float = 0;
 		switch (rating){
 			case 'shit':
-				hit = 1-(ratingWindows[0]/Conductor.safeZoneOffset);
+				hit = .25;
 			case 'bad':
-				hit = 1-(ratingWindows[1]/Conductor.safeZoneOffset);
+				hit = .5;
 			case 'good':
-				hit = 1-(ratingWindows[2]/Conductor.safeZoneOffset);
+				hit = .75;
 			case 'sick':
 				hit = 1;
 		}

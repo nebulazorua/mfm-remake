@@ -22,8 +22,9 @@ class OptionUtils
 		"Quaver",
 		"Judge Four",
 		"EMFNF2",
-		"KadeDev",
+		"BSide Philly",
 		"Dream",
+		"Fogu"
 	];
 	public static var ratingWindowTypes:Array<Array<Float>> = [ // TODO: make these all properly scale w/ the safeZoneOffset n shit
 		[ // Vanilla
@@ -67,6 +68,12 @@ class OptionUtils
 			0,
 			0,
 			166
+		],
+		[ // Fogu
+			25,
+			50,
+			75,
+			100
 		]
 	];
 	public static var shit:Array<FlxKey> = [
@@ -140,6 +147,7 @@ class Options
 	public var downScroll:Bool = false;
 	public var middleScroll:Bool = false;
 	public var menuFlash:Bool = true;
+	public var showComboCounter:Bool = true;
 
 	public var picoShaders:Bool = true;
 	public var picoCamshake:Bool = true;
