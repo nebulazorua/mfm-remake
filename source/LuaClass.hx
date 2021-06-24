@@ -1157,9 +1157,9 @@ class LuaNote extends LuaClass {
 
           var offset = Lua.tonumber(l,3);
           if(plr)
-            PlayState.currentPState.playerNoteOffsets[noteData][0]=offset;
+            PlayState.currentPState.playerNoteOffsets[noteData].x=offset;
           else
-            PlayState.currentPState.opponentNoteOffsets[noteData][0]=offset;
+            PlayState.currentPState.opponentNoteOffsets[noteData].x=offset;
 
           LuaClass.DefaultSetter(l);
           return 0;
@@ -1183,9 +1183,9 @@ class LuaNote extends LuaClass {
 
           var offset = Lua.tonumber(l,3);
           if(plr)
-            PlayState.currentPState.playerNoteOffsets[noteData][1]=offset;
+            PlayState.currentPState.playerNoteOffsets[noteData].y=offset;
           else
-            PlayState.currentPState.opponentNoteOffsets[noteData][1]=offset;
+            PlayState.currentPState.opponentNoteOffsets[noteData].y=offset;
 
           LuaClass.DefaultSetter(l);
           return 0;

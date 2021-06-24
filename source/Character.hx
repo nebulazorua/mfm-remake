@@ -372,7 +372,7 @@ class Character extends FlxSprite
 
 				loadOffsets();
 				playAnim("idle");
-				
+
 			case 'selever':
 				frames = Paths.getSparrowAtlas("characters/fuckboi_sheet",'shared');
 				animation.addByPrefix("idle","SelIdle", 24, false);
@@ -477,10 +477,6 @@ class Character extends FlxSprite
 				Cache.charFrames[curCharacter]=frames;
 			}
 			FlxG.bitmap.dumpCache();
-
-
-
-
 
 			loadAnimations();
 			loadOffsets();

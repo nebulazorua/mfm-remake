@@ -134,18 +134,18 @@ class PlayState extends MusicBeatState
 	private var camGame:FlxCamera;
 	public var modchart:ModChart;
 
-	public var playerNoteOffsets:Array<Array<Float>> = [
-		[0,0], // left
-		[0,0], // down
-		[0,0], // up
-		[0,0]// right
+	public var playerNoteOffsets:Array<FlxPoint> = [
+		new FlxPoint(0,0), // left
+		new FlxPoint(0,0), // down
+		new FlxPoint(0,0), // up
+		new FlxPoint(0,0) // right
 	];
 
-	public var opponentNoteOffsets:Array<Array<Float>> = [
-		[0,0], // left
-		[0,0], // down
-		[0,0], // up
-		[0,0] // right
+	public var opponentNoteOffsets:Array<FlxPoint> = [
+		new FlxPoint(0,0), // left
+		new FlxPoint(0,0), // down
+		new FlxPoint(0,0), // up
+		new FlxPoint(0,0) // right
 	];
 
 	public var playerNoteAlpha:Array<Float>=[
@@ -174,6 +174,7 @@ class PlayState extends MusicBeatState
 	var rainShader:RainEffect;
 	var vcrDistortionGame:VCRDistortionEffect;
 	var phillyTrain:FlxSprite;
+	var gospelModchart:Int = -1;
 	var trainSound:FlxSound;
 	var blackFade:FlxSprite;
 	var brokenPillar:FlxSprite;
@@ -978,6 +979,7 @@ class PlayState extends MusicBeatState
 				dad.y += 100;
 				camPos.set(dad.getGraphicMidpoint().x + 300, dad.getGraphicMidpoint().y);
 			case 'sarvente-lucifer':
+				dad.x -= 75;
 				dad.y -= 400;
 		}
 
@@ -1047,8 +1049,6 @@ class PlayState extends MusicBeatState
 		add(boyfriend);
 
 		var doof:DialogueBox = new DialogueBox(false, dialogue);
-		// doof.x += 70;
-		// doof.y = FlxG.height * 0.5;
 		doof.scrollFactor.set();
 		doof.finishThing = startCountdown;
 
@@ -1699,7 +1699,18 @@ class PlayState extends MusicBeatState
 				else
 					oldNote = null;
 
-				var swagNote:Note = new Note(daStrumTime, daNoteData, oldNote, false);
+				var speed = PlayState.SONG.speed;
+				if(SONG.song.toLowerCase()=='gospel'){
+					if(daBeats>55 && daBeats<72 || daBeats>=88 && daBeats<100){
+						speed+=.5;
+					}else if(daBeats>=100){
+						speed+=.75;
+					}else if(daStrumTime>=125960 && daStrumTime<=126700){
+						speed=5;
+					}
+				}
+
+				var swagNote:Note = new Note(daStrumTime, daNoteData, oldNote, false, speed);
 				swagNote.section = daBeats;
 				swagNote.sustainLength = songNotes[2];
 				swagNote.scrollFactor.set(0, 0);
@@ -1714,7 +1725,7 @@ class PlayState extends MusicBeatState
 				{
 					oldNote = unspawnNotes[Std.int(unspawnNotes.length - 1)];
 
-					var sustainNote:Note = new Note(daStrumTime + (Conductor.stepCrochet * susNote) + Conductor.stepCrochet, daNoteData, oldNote, true);
+					var sustainNote:Note = new Note(daStrumTime + (Conductor.stepCrochet * susNote) + Conductor.stepCrochet, daNoteData, oldNote, true, speed);
 					sustainNote.scrollFactor.set();
 					sustainNote.section = swagNote.section;
 					unspawnNotes.push(sustainNote);
@@ -1835,6 +1846,7 @@ class PlayState extends MusicBeatState
 			}
 
 			babyArrow.updateHitbox();
+			babyArrow.centerOrigin();
 			babyArrow.scrollFactor.set();
 
 			babyArrow.ID = i;
@@ -1993,6 +2005,8 @@ class PlayState extends MusicBeatState
 		return num;
 	}
 	var timer:Float=0;
+	var gospelTimer:Float=0;
+	var anotherTimer:Float=0;
 
 	override public function update(elapsed:Float)
 	{
@@ -2019,7 +2033,106 @@ class PlayState extends MusicBeatState
 		modchart.update(elapsed);
 
 		if(dad.curCharacter=='sarvente-lucifer'){
-			dad.y = -300 + 50*Math.sin(timer*2);
+			dad.y = -300 + 50*Math.sin(timer*2); // TODO: NOT SHIT
+		}
+
+		if(SONG.song.toLowerCase()=='gospel'){
+			if(gospelModchart>-1){
+				gospelTimer+=elapsed;
+			}else{
+				gospelTimer=0;
+			}
+			var fpsAdjustment = (openfl.Lib.current.stage.frameRate/60);
+			switch (gospelModchart){
+				case -1:
+					for (point in opponentNoteOffsets){
+						point.x = 0;
+						point.y = 0;
+					}
+					for (point in playerNoteOffsets){
+						point.x = 0;
+						point.y = 0;
+					}
+				case 0:
+					anotherTimer=0;
+					camHUD.angle=0;
+					for (idx in 0...opponentNoteOffsets.length){
+						var offset = opponentNoteOffsets[idx];
+						offset.set(FlxMath.lerp(offset.x,0,.025/fpsAdjustment),FlxMath.lerp(offset.y,25*Math.sin(gospelTimer),.025/fpsAdjustment));
+					}
+					for (idx in 0...playerNoteOffsets.length){
+						var offset = playerNoteOffsets[idx];
+						offset.set(FlxMath.lerp(offset.x,0,.025/fpsAdjustment),FlxMath.lerp(offset.y,25*Math.sin(gospelTimer),.025/fpsAdjustment));
+					}
+				case 1:
+					anotherTimer=0;
+					camHUD.angle=0;
+					for (idx in 0...opponentNoteOffsets.length){
+						var offset = opponentNoteOffsets[idx];
+						offset.set(
+							FlxMath.lerp(offset.x,25*Math.cos((gospelTimer*2)+(idx*2))+Math.cos(gospelTimer*2+(idx*2)),.025/fpsAdjustment),
+							FlxMath.lerp(offset.y,25*Math.sin((gospelTimer*2)+(idx*2)),.025/fpsAdjustment)
+						);
+					}
+					for (idx in 0...playerNoteOffsets.length){
+						var offset = playerNoteOffsets[idx];
+						offset.set(
+							FlxMath.lerp(offset.x,25*Math.cos((gospelTimer*2)+(idx*2))+Math.cos(gospelTimer*2+(idx*2)),.025/fpsAdjustment),
+							FlxMath.lerp(offset.y,25*Math.sin((gospelTimer*2)+(idx*2)),.025/fpsAdjustment)
+						);
+					}
+				case 2:
+					anotherTimer=0;
+					camHUD.angle=0;
+					for (idx in 0...opponentNoteOffsets.length){
+						var offset = opponentNoteOffsets[idx];
+						offset.set(
+							FlxMath.lerp(offset.x,25*Math.cos(gospelTimer*2),.025/fpsAdjustment),
+							FlxMath.lerp(offset.y,45*Math.sin((gospelTimer*2)+(idx*2)),.025/fpsAdjustment)
+						);
+					}
+					for (idx in 0...playerNoteOffsets.length){
+						var offset = playerNoteOffsets[idx];
+						offset.set(
+							FlxMath.lerp(offset.x,25*Math.cos(gospelTimer*2),.025/fpsAdjustment),
+							FlxMath.lerp(offset.y,45*Math.sin((gospelTimer*2)+(idx*2)),.025/fpsAdjustment)
+						);
+					}
+				case 3:
+					anotherTimer+=elapsed;
+					camHUD.angle = FlxMath.lerp(camHUD.angle,5*Math.cos(anotherTimer*3),.05/fpsAdjustment);
+					for (idx in 0...opponentNoteOffsets.length){
+						var offset = opponentNoteOffsets[idx];
+						offset.set(
+							FlxMath.lerp(offset.x,25*Math.cos((gospelTimer*2)+(idx*2))+Math.cos(gospelTimer*2+(idx*2)),.025/fpsAdjustment),
+							FlxMath.lerp(offset.y,25*Math.sin((gospelTimer*2)+(idx*2)),.025/fpsAdjustment)
+						);
+					}
+					for (idx in 0...playerNoteOffsets.length){
+						var offset = playerNoteOffsets[idx];
+						offset.set(
+							FlxMath.lerp(offset.x,25*Math.cos((gospelTimer*2)+(idx*2))+Math.cos(gospelTimer*2+(idx*2)),.025/fpsAdjustment),
+							FlxMath.lerp(offset.y,25*Math.sin((gospelTimer*2)+(idx*2)),.025/fpsAdjustment)
+						);
+					}
+				case 4:
+					anotherTimer+=elapsed;
+					camHUD.angle = FlxMath.lerp(camHUD.angle,5*Math.cos(anotherTimer*5),.05/fpsAdjustment);
+					for (idx in 0...opponentNoteOffsets.length){
+						var offset = opponentNoteOffsets[idx];
+						offset.set(
+							FlxMath.lerp(offset.x,25*(Math.cos((gospelTimer*4)+(idx*2))+Math.cos(gospelTimer*5+(idx*2))),.05/fpsAdjustment),
+							FlxMath.lerp(offset.y,25*Math.sin((gospelTimer*4)+(idx*2)),.05/fpsAdjustment)
+						);
+					}
+					for (idx in 0...playerNoteOffsets.length){
+						var offset = playerNoteOffsets[idx];
+						offset.set(
+							FlxMath.lerp(offset.x,25*(Math.cos((gospelTimer*6)+(idx*2))+Math.cos(gospelTimer*5+(idx*2))),.05/fpsAdjustment),
+							FlxMath.lerp(offset.y,25*Math.sin((gospelTimer*4)+(idx*2)),.05/fpsAdjustment)
+						);
+					}
+			}
 		}
 
 		if (FlxG.keys.justPressed.NINE)
@@ -2391,17 +2504,17 @@ class PlayState extends MusicBeatState
 				var line = playerStrumLines.members[idx];
 				if(currentOptions.middleScroll){
 					line.screenCenter(X);
-					line.x += Note.swagWidth*(-2+idx) + playerNoteOffsets[idx][0];
+					line.x += Note.swagWidth*(-2+idx) + playerNoteOffsets[idx].x;
 				}else{
-					line.x = (Note.swagWidth*idx) + 50 + ((FlxG.width / 2)) + playerNoteOffsets[idx][0];
+					line.x = (Note.swagWidth*idx) + 50 + ((FlxG.width / 2)) + playerNoteOffsets[idx].x;
 				}
-				line.y = strumLine.y+playerNoteOffsets[idx][1];
+				line.y = strumLine.y+playerNoteOffsets[idx].y;
 			}
 			for(idx in 0...opponentStrumLines.length){
 				var line = opponentStrumLines.members[idx];
 
-				line.x = (Note.swagWidth*idx) + 50 +opponentNoteOffsets[idx][0];
-				line.y = strumLine.y+opponentNoteOffsets[idx][1];
+				line.x = (Note.swagWidth*idx) + 50 +opponentNoteOffsets[idx].x;
+				line.y = strumLine.y+opponentNoteOffsets[idx].y;
 			}
 
 			for (idx in 0...strumLineNotes.length){
@@ -2419,8 +2532,6 @@ class PlayState extends MusicBeatState
 				if(modchart.opponentNotesFollowReceptors && idx>3 || idx<=3 && modchart.playerNotesFollowReceptors){
 					note.x = strumLine.x;
 					note.y = strumLine.y;
-				}else{
-
 				}
 
 				note.alpha = alpha;
@@ -2444,13 +2555,13 @@ class PlayState extends MusicBeatState
 				if (daNote.y > FlxG.height)
 				{
 					daNote.active = false;
-
-					daNote.visible = false;
 				}
 				else
 				{
 					if((daNote.mustPress || !daNote.mustPress && !currentOptions.middleScroll)){
 						daNote.visible = true;
+					}else{
+						daNote.visible = false;
 					}
 
 					daNote.active = true;
@@ -2462,7 +2573,7 @@ class PlayState extends MusicBeatState
 
 				var brr = strumLine.y + Note.swagWidth/2;
 				if(currentOptions.downScroll){
-					daNote.y = (strumLine.y + 0.45 * (Conductor.songPosition - daNote.strumTime) * FlxMath.roundDecimal(SONG.speed, 2));
+					daNote.y = (strumLine.y + 0.45 * (Conductor.songPosition - daNote.strumTime) * FlxMath.roundDecimal(daNote.speed, 2));
 					if(daNote.isSustainNote){
 						if(daNote.animation.curAnim.name.endsWith("end") && daNote.prevNote!=null){
 							daNote.y += daNote.prevNote.height;
@@ -2481,7 +2592,7 @@ class PlayState extends MusicBeatState
 						daNote.clipRect = swagRect;
 					}
 				}else{
-					daNote.y = (strumLine.y - 0.45 * (Conductor.songPosition - daNote.strumTime) * FlxMath.roundDecimal(SONG.speed, 2));
+					daNote.y = (strumLine.y - 0.45 * (Conductor.songPosition - daNote.strumTime) * FlxMath.roundDecimal(daNote.speed, 2));
 					if (daNote.isSustainNote
 						&& daNote.y + daNote.offset.y * daNote.scale.y <= brr
 						&& (!daNote.mustPress || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit))))
@@ -2561,6 +2672,9 @@ class PlayState extends MusicBeatState
 							gf.playAnim("scaredRuv",true);
 						}
 
+						if(dad.curCharacter=='sarvente-lucifer' && health>.01){
+							health-=.01;
+						}
 						if(afterimages!=null){
 							if(afterimages.notes[daNote.section]!=null){
 								if(afterimages.notes[daNote.section].crossFade){
@@ -3237,10 +3351,10 @@ class PlayState extends MusicBeatState
 		}
 
 
-		if (note.noteData >= 0)
+		/*if (note.noteData >= 0)
 			health += 0.023;
 		else
-			health += 0.004;
+			health += 0.004;*/
 
 		previousHealth=health;
 		if(luaModchartExists && lua!=null)
@@ -3260,6 +3374,10 @@ class PlayState extends MusicBeatState
 			anim='singRIGHT';
 		}
 
+		var heal = .023;
+		if(SONG.song.toLowerCase()=='gospel')
+			heal=.01;
+
 		if(afterimages!=null){
 			if(afterimages.notes[note.section]!=null){
 				if(afterimages.notes[note.section].crossFade){
@@ -3269,9 +3387,13 @@ class PlayState extends MusicBeatState
 					afterImage.velocity.x = FlxG.random.float(-25,25)*6;
 					afterImage.acceleration.x = -afterImage.velocity.x/1.5;
 					afterImageSprites.add(afterImage);
+					if(SONG.song.toLowerCase()=='gospel'){
+						heal = .03;
+					}
 				}
 			}
 		}
+		health += heal;
 
 		var canHold = note.isSustainNote && boyfriend.animation.getByName(anim+"Hold")!=null;
 		if(canHold && !boyfriend.animation.curAnim.name.startsWith(anim)){
@@ -3397,26 +3519,31 @@ class PlayState extends MusicBeatState
 		{
 			resyncVocals();
 		}
+		switch(SONG.song.toLowerCase()){
+			case'zavodila':
+				if(curStep==112 || curStep==912){
+					FlxTween.tween(blackFade,{alpha:.85},1.5,{
+						ease: FlxEase.linear
+					});
+				}else if(curStep==128 || curStep==928){
+					FlxTween.tween(blackFade,{alpha:0},.1,{
+						ease: FlxEase.linear
+					});
+				}
+			case 'gospel':
+				switch (curStep){
+					case 128 | 512 | 1408:
+						gospelModchart = 1;
+					case 384 | 632 | 768:
+						gospelModchart = 0;
+					case 640 | 1152:
+						gospelModchart = 2;
+					case 896 | 1536:
+						gospelModchart = 3;
+					case 1600:
+						gospelModchart = 4;
+				}
 
-/*
-FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, 2.5, {
-	ease: FlxEase.quadInOut,
-	onComplete: function(twn:FlxTween)
-	{
-		startCountdown();
-	}
-});
-*/
-		if(SONG.song.toLowerCase()=='zavodila' ){
-			if(curStep==112 || curStep==912){
-				FlxTween.tween(blackFade,{alpha:.85},1.5,{
-					ease: FlxEase.linear
-				});
-			}else if(curStep==128 || curStep==928){
-				FlxTween.tween(blackFade,{alpha:0},.1,{
-					ease: FlxEase.linear
-				});
-			}
 		}
 		if (dad.curCharacter == 'spooky' && curStep % 4 == 2)
 		{
@@ -3449,6 +3576,7 @@ FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, 2.5, {
 				dad.dance();
 
 		}
+
 		// FlxG.log.add('change bpm' + SONG.notes[Std.int(curStep / 16)].changeBPM);
 		wiggleShit.update(Conductor.crochet);
 
@@ -3457,6 +3585,14 @@ FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, 2.5, {
 		{
 			FlxG.camera.zoom += 0.015;
 			camHUD.zoom += 0.03;
+		}
+
+		if(curBeat % 4 == 0){
+			if(curStage=='churchSatan'){
+				sarvCirc2.angle += 5;
+				sarvCirc1.angle += 5;
+				health-=.01;
+			}
 		}
 
 		if (camZooming && FlxG.camera.zoom < 1.35 && curBeat % 4 == 0)
